@@ -42,7 +42,7 @@ def main() -> None:
         add_file_handler(args.logfile)
     set_verbosity(log_level)
 
-    with open(args.config, "r") as f:
+    with open(args.config, "r", encoding="utf-8") as f:
         config = toml.load(f)
 
     manager = DownloadManager(uid=config["uid"], passwd=config["passwd"])
