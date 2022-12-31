@@ -110,7 +110,7 @@ class DownloadManager(object):
 
 
 def fetch_video_id(
-    query: str, targets: str, max_videos: int = 100
+    query: str, targets: str, max_videos: int = 100, offset: int = 0
 ) -> List[Tuple[str, str]]:
     query_dict = {
         "q": query,
@@ -118,6 +118,7 @@ def fetch_video_id(
         "fields": "contentId,title",
         "_sort": "-startTime",
         "_limit": str(max_videos),
+        "_offset": str(offset),
     }
     logger.debug(f"{query_dict=}")
     res = requests.get(ENDPOINT_URL, query_dict)
