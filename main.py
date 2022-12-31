@@ -47,8 +47,8 @@ def main() -> None:
         add_file_handler(args.logfile)
     set_verbosity(log_level)
 
-    with open(args.config, "r") as f:
-        config_dict = toml.load(f)
+    with open(args.config, "r", encoding="utf-8") as f:
+        config = toml.load(f)
     config = OmegaConf.merge(config_schema, OmegaConf.create(config_dict))
 
     manager = DownloadManager(uid=config.uid, passwd=config.passwd)
