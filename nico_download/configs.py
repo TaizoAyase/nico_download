@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import List
+from typing import List, Optional
 
 
 @dataclass
@@ -8,7 +8,7 @@ class Query:
     target: str
     subdir: str
     offset: int = 0
-    limit: int = 10
+    limit: Optional[int] = None
 
 
 @dataclass

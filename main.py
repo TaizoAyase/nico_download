@@ -52,10 +52,13 @@ def main() -> None:
     config = OmegaConf.merge(config_schema, OmegaConf.create(config_dict))
 
     manager = DownloadManager(uid=config.uid, passwd=config.passwd)
-    limit = config.limit
+    global_limit = config.limit
     for query in config.queries:
         results = fetch_video_id(
-            query=query.query, targets=query.target, max_videos=limit
+            query=query.query,
+            targets=query.target,
+            max_videos=query.limit or global_limit,
+            offset=query.offset,
         )
         savedir = Path(config.saveroot)
         if len(query["subdir"]) > 0:
