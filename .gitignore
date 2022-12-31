@@ -133,4 +133,5 @@ config.toml
 cron_download.log*
 cron_command.txt
 run_cron.sh
+tmp/
 
