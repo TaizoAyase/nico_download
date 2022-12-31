@@ -61,8 +61,8 @@ def main() -> None:
             offset=query.offset,
         )
         savedir = Path(config.saveroot)
-        if len(query["subdir"]) > 0:
-            savedir = savedir / query["subdir"]
+        if len(query.subdir) > 0:
+            savedir = savedir / query.subdir
 
         for movie_id, title in results:
             save_path = savedir / f"{title}.mp4"

@@ -5,8 +5,6 @@ from typing import List, Tuple
 
 import nndownload
 import requests
-from nico_download.exceptions import FileExistsError
-from nico_download.logger import get_logger
 from nndownload.nndownload import (
     BACKOFF_FACTOR,
     LOGIN_URL,
@@ -15,6 +13,9 @@ from nndownload.nndownload import (
 )
 from requests.adapters import HTTPAdapter
 from urllib3.util import Retry
+
+from nico_download.exceptions import FileExistsError
+from nico_download.logger import get_logger
 
 ENDPOINT_URL = "https://api.search.nicovideo.jp/api/v2/snapshot/video/contents/search"
 
@@ -57,8 +58,14 @@ class DownloadManager(object):
     def __init__(self, uid: str, passwd: str):
         self._uid = uid
         self._passwd = passwd
-        session = _login(self._uid, self._passwd)
-        self._cookie = session.cookies.get_dict()["user_session"]
+        self.__cookie = None
+
+    @property
+    def _cookie(self):
+        if self.__cookie is None:
+            session = _login(self._uid, self._passwd)
+            self.__cookie = session.cookies.get_dict()["user_session"]
+        return self.__cookie
 
     def download_video(
         self,
