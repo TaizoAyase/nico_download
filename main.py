@@ -3,9 +3,14 @@ import logging
 from pathlib import Path
 
 import toml
+from omegaconf import OmegaConf
+
+from nico_download.configs import Config
 from nico_download.downloader import DownloadManager, fetch_video_id
 from nico_download.exceptions import FileExistsError
 from nico_download.logger import add_file_handler, set_verbosity
+
+config_schema = OmegaConf.structured(Config)
 
 
 def main() -> None:
@@ -44,14 +49,18 @@ def main() -> None:
 
     with open(args.config, "r", encoding="utf-8") as f:
         config = toml.load(f)
+    config = OmegaConf.merge(config_schema, OmegaConf.create(config_dict))
 
-    manager = DownloadManager(uid=config["uid"], passwd=config["passwd"])
-    limit = config["limit"]
-    for query in config["queries"]:
+    manager = DownloadManager(uid=config.uid, passwd=config.passwd)
+    global_limit = config.limit
+    for query in config.queries:
         results = fetch_video_id(
-            query=query["query"], targets=query["target"], max_videos=limit
+            query=query.query,
+            targets=query.target,
+            max_videos=query.limit or global_limit,
+            offset=query.offset,
         )
-        savedir = Path(config["saveroot"])
+        savedir = Path(config.saveroot)
         if len(query["subdir"]) > 0:
             savedir = savedir / query["subdir"]
 
