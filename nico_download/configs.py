@@ -18,3 +18,4 @@ class Config:
     saveroot: str
     limit: int = 10
     queries: List[Query] = field(default_factory=list)
+    skip_on_fail: bool = False

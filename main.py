@@ -68,7 +68,11 @@ def main() -> None:
             save_path = savedir / f"{title}.mp4"
             try:
                 manager.download_video(
-                    movie_id, save_path, args.overwrite, args.dry_run
+                    movie_id,
+                    save_path,
+                    args.overwrite,
+                    args.dry_run,
+                    config.skip_on_fail,
                 )
             except FileExistsError as e:
                 print(e)

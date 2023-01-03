@@ -73,6 +73,7 @@ class DownloadManager(object):
         save_path: Path,
         overwrite: bool = False,
         dry_run: bool = False,
+        skip_on_fail: bool = False,
     ) -> Path:
         url = self.movie_url_prefix + str(video_id)
         if dry_run:
@@ -111,7 +112,10 @@ class DownloadManager(object):
             sys.exit(0)
         except Exception as e:
             logger.exception("Something wrong happened in nndownload.execute()")
-            raise RuntimeError(str(e))
+            if not skip_on_fail:
+                raise RuntimeError(str(e))
+            else:
+                logger.warning(f"skip_on_fail flag enabled. Skip for {save_path}")
         logger.info(f"Successfully download to {save_path}.")
         return save_path
 
