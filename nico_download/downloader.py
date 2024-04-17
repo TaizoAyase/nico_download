@@ -17,7 +17,7 @@ from urllib3.util import Retry
 from nico_download.exceptions import FileExistsError
 from nico_download.logger import get_logger
 
-ENDPOINT_URL = "https://api.search.nicovideo.jp/api/v2/snapshot/video/contents/search"
+ENDPOINT_URL = "https://snapshot.search.nicovideo.jp/api/v2/snapshot/video/contents/search"
 
 logger = get_logger(__name__)
 
