@@ -1,11 +1,11 @@
 [tool.poetry]
 name = "nico_download"
-version = "0.2.2"
+version = "0.2.1"
 description = ""
 authors = ["TaizoAyase <zxcvbnmkind@gmail.com>"]
 
 [tool.poetry.dependencies]
-python = ">=3.8"
+python = ">=3.11"
 requests = "^2.26.0"
 nndownload = "^1.11"
 toml = "^0.10.2"
@@ -13,13 +13,16 @@ colorlog = "<5.0.0"
 omegaconf = "^2.3.0"
 python-socks = "<2.0.0"
 
-[tool.poetry.dev-dependencies]
-pysen = { extras = ["lint"], version = "^0.9.1" }
+[tool.poetry.group.dev.dependencies]
+pysen = "^0.10.4"
 ipython = "^7.25.0"
 jedi = "0.17.2"
 pytest-cov = "^2.12.1"
 bump2version = "^1.0.1"
-click = "<8.1.0"
+black = "^23.7.0"
+flake8 = "^6.0.0"
+mypy = "^1.4.1"
+isort = "^5.12.0"
 
 [tool.pysen.lint]
 enable_black = true
