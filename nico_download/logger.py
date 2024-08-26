@@ -21,12 +21,10 @@ def _get_library_name() -> str:
 
 
 def _get_library_root_logger() -> logging.Logger:
-
     return logging.getLogger(_get_library_name())
 
 
 def _configure_library_root_logger() -> None:
-
     global _default_handler
 
     with _lock:
