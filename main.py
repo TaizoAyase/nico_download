@@ -3,12 +3,11 @@ import logging
 from pathlib import Path
 
 import toml
-from omegaconf import OmegaConf
-
 from nico_download.configs import Config
 from nico_download.downloader import DownloadManager, fetch_video_id
 from nico_download.exceptions import FileExistsError
 from nico_download.logger import add_file_handler, set_verbosity
+from omegaconf import OmegaConf
 
 config_schema = OmegaConf.structured(Config)
 

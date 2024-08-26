@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nico_download"
-version = "0.2.2"
+version = "0.3.0"
 description = ""
 authors = ["TaizoAyase <zxcvbnmkind@gmail.com>"]
 

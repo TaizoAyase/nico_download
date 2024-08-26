@@ -5,6 +5,8 @@ from typing import List, Tuple
 
 import nndownload
 import requests
+from nico_download.exceptions import FileExistsError
+from nico_download.logger import get_logger
 from nndownload.nndownload import (
     BACKOFF_FACTOR,
     LOGIN_URL,
@@ -14,10 +16,9 @@ from nndownload.nndownload import (
 from requests.adapters import HTTPAdapter
 from urllib3.util import Retry
 
-from nico_download.exceptions import FileExistsError
-from nico_download.logger import get_logger
-
-ENDPOINT_URL = "https://snapshot.search.nicovideo.jp/api/v2/snapshot/video/contents/search"
+ENDPOINT_URL = (
+    "https://snapshot.search.nicovideo.jp/api/v2/snapshot/video/contents/search"
+)
 
 logger = get_logger(__name__)
 
