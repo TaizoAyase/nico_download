@@ -1,28 +1,36 @@
-[tool.poetry]
-name = "nico_download"
-version = "0.3.0"
+[project]
+name = "nico-download"
+version = "0.4.0"
 description = ""
-authors = ["TaizoAyase <zxcvbnmkind@gmail.com>"]
+authors = [{name = "TaizoAyase", email = "zxcvbnmkind@gmail.com"}]
+requires-python = ">=3.11"
+dependencies = [
+    "requests>=2.26.0,<3.0.0",
+    "nndownload>=1.11,<2.0.0",
+    "toml>=0.10.2,<1.0.0",
+    "colorlog<5.0.0",
+    "omegaconf>=2.3.0,<3.0.0",
+    "python-socks<2.0.0",
+]
 
-[tool.poetry.dependencies]
-python = ">=3.11"
-requests = "^2.26.0"
-nndownload = "^1.11"
-toml = "^0.10.2"
-colorlog = "<5.0.0"
-omegaconf = "^2.3.0"
-python-socks = "<2.0.0"
+[dependency-groups]
+dev = [
+    "pysen>=0.10.4,<1.0.0",
+    "ipython>=7.25.0,<8.0.0",
+    "jedi==0.17.2",
+    "pytest-cov>=2.12.1,<3.0.0",
+    "bump2version>=1.0.1,<2.0.0",
+    "black>=23.7.0,<24.0.0",
+    "flake8>=6.0.0,<7.0.0",
+    "mypy>=1.4.1,<2.0.0",
+    "isort>=5.12.0,<6.0.0",
+]
 
-[tool.poetry.group.dev.dependencies]
-pysen = "^0.10.4"
-ipython = "^7.25.0"
-jedi = "0.17.2"
-pytest-cov = "^2.12.1"
-bump2version = "^1.0.1"
-black = "^23.7.0"
-flake8 = "^6.0.0"
-mypy = "^1.4.1"
-isort = "^5.12.0"
+[tool.setuptools]
+packages = ["nico_download"]
+
+[tool.uv]
+cache-dir = "./tmp"
 
 [tool.pysen.lint]
 enable_black = true
@@ -31,11 +39,11 @@ enable_isort = true
 enable_mypy = true
 mypy_preset = "strict"
 line_length = 88
-py_version = "py38"
+py_version = "py311"
 
 [[tool.pysen.lint.mypy_targets]]
 paths = ["."]
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
