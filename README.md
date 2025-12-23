@@ -9,10 +9,10 @@
 
 ## installation
 
-please use poetry
+please use uv
 
 ```bash
-$ poetry install
+$ uv sync
 ```
 
 ## edit config
@@ -23,6 +23,6 @@ $ poetry install
 ## run
 
 ```bash
-$ poetry run main.py --help  # to check flags
-$ poetry run main.py
+$ uv run main.py --help  # to check flags
+$ uv run main.py
 ```
