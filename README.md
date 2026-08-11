@@ -18,8 +18,9 @@ $ uv sync
 ## edit config
 
 - `cp config.toml.example config.toml`
-- edit `config.toml` to pass the uid and password of niconico and queries
+- edit `config.toml` to set `session_cookie` and queries
 - **`session_cookie` の設定が必要です (下記参照)**
+- `uid` / `passwd` によるパスワードログインはニコニコ側の仕様変更 (CAPTCHA 導入) により現在動作しません。将来復旧した場合のフォールバックとしてフィールドだけ残しています (optional)
 
 ## session cookie の取得方法
 

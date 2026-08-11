@@ -11,7 +11,7 @@ def nico_config():
     here = Path(__file__).parent
     with open(here / "../config.toml", "r") as f:
         config = toml.load(f)
-    return config["uid"], config["passwd"]
+    return config.get("uid"), config.get("passwd"), config.get("session_cookie")
 
 
 def test_fetch_video_id():
@@ -32,8 +32,8 @@ def test_fetch_video_id():
 )
 @pytest.mark.parametrize("video_id", ["sm37701231", "so24277772"])
 def test_download_movie(tmp_path, video_id, overwrite_flag, nico_config):
-    uid, passwd = nico_config
-    manager = DownloadManager(uid=uid, passwd=passwd)
+    uid, passwd, session_cookie = nico_config
+    manager = DownloadManager(uid=uid, passwd=passwd, session_cookie=session_cookie)
     target_path = tmp_path / "tmp.mp4"
 
     # make dummy file to overwrite

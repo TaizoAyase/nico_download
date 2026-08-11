@@ -56,7 +56,18 @@ def _login(username: str, password: str) -> requests.Session:
 class DownloadManager(object):
     movie_url_prefix = "https://www.nicovideo.jp/watch/"
 
-    def __init__(self, uid: str, passwd: str, session_cookie: Optional[str] = None):
+    def __init__(
+        self,
+        uid: Optional[str] = None,
+        passwd: Optional[str] = None,
+        session_cookie: Optional[str] = None,
+    ):
+        if session_cookie is None and not (uid and passwd):
+            raise ValueError(
+                "Either session_cookie or both uid and passwd must be set. "
+                "Note: password login is currently broken on the niconico side; "
+                "see README for how to obtain a session cookie."
+            )
         self._uid = uid
         self._passwd = passwd
         self.__cookie = session_cookie
@@ -98,11 +109,11 @@ class DownloadManager(object):
 
         try:
             logger.info(f"Start download from {url}.")
+            auth_args = []
+            if self._uid and self._passwd:
+                auth_args += ["--username", self._uid, "--password", self._passwd]
             nndownload.execute(
-                "--username",
-                self._uid,
-                "--password",
-                self._passwd,
+                *auth_args,
                 "--session-cookie",
                 self._cookie,
                 "-o",

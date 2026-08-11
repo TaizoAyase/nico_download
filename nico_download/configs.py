@@ -13,9 +13,9 @@ class Query:
 
 @dataclass
 class Config:
-    uid: str
-    passwd: str
     saveroot: str
+    uid: Optional[str] = None
+    passwd: Optional[str] = None
     session_cookie: Optional[str] = None
     limit: int = 10
     queries: List[Query] = field(default_factory=list)
