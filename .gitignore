@@ -135,3 +135,6 @@ cron_command.txt
 run_cron.sh
 tmp/
 
+
+# downloaded videos
+downloaded/
