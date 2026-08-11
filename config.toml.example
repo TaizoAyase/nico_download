@@ -1,5 +1,8 @@
 uid = "example_email@mail.com"
 passwd = "example_password"
+# ブラウザで取得した user_session クッキーの値 (取得方法は README を参照)
+# 設定するとパスワードログインをスキップしてこの値を使う
+session_cookie = "user_session_12345678_0123456789abcdef..."
 saveroot = "./videos"
 limit = 10
 

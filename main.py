@@ -50,7 +50,11 @@ def main() -> None:
         config_dict = toml.load(f)
     config = OmegaConf.merge(config_schema, OmegaConf.create(config_dict))
 
-    manager = DownloadManager(uid=config.uid, passwd=config.passwd)
+    manager = DownloadManager(
+        uid=config.uid,
+        passwd=config.passwd,
+        session_cookie=config.session_cookie,
+    )
     global_limit = config.limit
     for query in config.queries:
         results = fetch_video_id(

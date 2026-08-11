@@ -1,7 +1,7 @@
 import json
 import sys
 from pathlib import Path
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 import nndownload
 import requests
@@ -56,14 +56,17 @@ def _login(username: str, password: str) -> requests.Session:
 class DownloadManager(object):
     movie_url_prefix = "https://www.nicovideo.jp/watch/"
 
-    def __init__(self, uid: str, passwd: str):
+    def __init__(self, uid: str, passwd: str, session_cookie: Optional[str] = None):
         self._uid = uid
         self._passwd = passwd
-        self.__cookie = None
+        self.__cookie = session_cookie
 
     @property
     def _cookie(self):
         if self.__cookie is None:
+            # Password login stopped working after the niconico login system
+            # was replaced with a Turnstile-protected SPA; supply
+            # session_cookie in config.toml instead.
             session = _login(self._uid, self._passwd)
             self.__cookie = session.cookies.get_dict()["user_session"]
         return self.__cookie
