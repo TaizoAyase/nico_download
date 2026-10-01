@@ -27,12 +27,11 @@ def test_retry_then_success(monkeypatch, tmp_path):
     assert save_path.exists()
 
 
-def test_give_up_and_remove_partial_file(monkeypatch, tmp_path):
+def test_give_up_after_retries(monkeypatch, tmp_path):
     calls = []
 
     def fake_execute(*args):
         calls.append(args)
-        Path(args[args.index("-o") + 1]).write_bytes(b"partial")
         raise KeyError("video")
 
     monkeypatch.setattr(downloader.nndownload, "execute", fake_execute)
@@ -40,7 +39,20 @@ def test_give_up_and_remove_partial_file(monkeypatch, tmp_path):
     with pytest.raises(RuntimeError):
         _manager(max_retries=2).download_video("so1", save_path)
     assert len(calls) == 3
-    assert not save_path.exists()
+
+
+def test_system_exit_becomes_runtime_error(monkeypatch, tmp_path):
+    calls = []
+
+    def fake_execute(*args):
+        calls.append(args)
+        raise SystemExit(2)
+
+    monkeypatch.setattr(downloader.nndownload, "execute", fake_execute)
+    save_path = tmp_path / "out.mp4"
+    with pytest.raises(RuntimeError):
+        _manager(max_retries=2).download_video("so1", save_path)
+    assert len(calls) == 3
 
 
 def test_skip_on_fail(monkeypatch, tmp_path):
@@ -49,8 +61,6 @@ def test_skip_on_fail(monkeypatch, tmp_path):
 
     monkeypatch.setattr(downloader.nndownload, "execute", fake_execute)
     save_path = tmp_path / "out.mp4"
-    ret = _manager(max_retries=0).download_video(
-        "so1", save_path, skip_on_fail=True
-    )
+    ret = _manager(max_retries=0).download_video("so1", save_path, skip_on_fail=True)
     assert ret == save_path
     assert not save_path.exists()

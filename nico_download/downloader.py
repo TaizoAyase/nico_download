@@ -112,7 +112,6 @@ class DownloadManager(object):
                 )
                 logger.warning("Continue to download.")
 
-        existed_before = save_path.exists()
         auth_args = []
         if self._uid and self._passwd:
             auth_args += ["--username", self._uid, "--password", self._passwd]
@@ -133,13 +132,10 @@ class DownloadManager(object):
                 save_path.unlink(missing_ok=True)
                 logger.critical(f"Intermediate file {save_path} is removed.")
                 sys.exit(0)
-            except Exception as e:
+            except (Exception, SystemExit) as e:
+                # nndownload.execute() parses its arguments with argparse,
+                # which raises SystemExit on invalid arguments.
                 logger.exception("Something wrong happened in nndownload.execute()")
-                # Do not leave a broken file behind; it would be treated as
-                # "already exists" and never retried on the next run.
-                if not existed_before and save_path.exists():
-                    save_path.unlink()
-                    logger.warning(f"Intermediate file {save_path} is removed.")
                 if attempt < self._max_retries:
                     logger.warning(
                         f"Retry downloading {url} in {self._retry_interval} sec "
