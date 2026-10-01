@@ -1,5 +1,6 @@
 import json
 import sys
+import time
 from pathlib import Path
 from typing import List, Optional, Tuple
 
@@ -61,6 +62,8 @@ class DownloadManager(object):
         uid: Optional[str] = None,
         passwd: Optional[str] = None,
         session_cookie: Optional[str] = None,
+        max_retries: int = 2,
+        retry_interval: float = 30.0,
     ):
         if session_cookie is None and not (uid and passwd):
             raise ValueError(
@@ -71,6 +74,8 @@ class DownloadManager(object):
         self._uid = uid
         self._passwd = passwd
         self.__cookie = session_cookie
+        self._max_retries = max_retries
+        self._retry_interval = retry_interval
 
     @property
     def _cookie(self):
@@ -107,30 +112,44 @@ class DownloadManager(object):
                 )
                 logger.warning("Continue to download.")
 
-        try:
-            logger.info(f"Start download from {url}.")
-            auth_args = []
-            if self._uid and self._passwd:
-                auth_args += ["--username", self._uid, "--password", self._passwd]
-            nndownload.execute(
-                *auth_args,
-                "--session-cookie",
-                self._cookie,
-                "-o",
-                str(save_path),
-                url,
-            )
-        except KeyboardInterrupt:
-            logger.critical("KeyboardInterrupt stopped!")
-            save_path.unlink()
-            logger.critical(f"Intermediate file {save_path} is removed.")
-            sys.exit(0)
-        except Exception as e:
-            logger.exception("Something wrong happened in nndownload.execute()")
-            if not skip_on_fail:
-                raise RuntimeError(str(e))
-            else:
+        auth_args = []
+        if self._uid and self._passwd:
+            auth_args += ["--username", self._uid, "--password", self._passwd]
+        for attempt in range(self._max_retries + 1):
+            try:
+                logger.info(f"Start download from {url}.")
+                nndownload.execute(
+                    *auth_args,
+                    "--session-cookie",
+                    self._cookie,
+                    "-o",
+                    str(save_path),
+                    url,
+                )
+                break
+            except KeyboardInterrupt:
+                logger.critical("KeyboardInterrupt stopped!")
+                logger.critical(
+                    f"Download to {save_path} was interrupted. Partial data may "
+                    "remain as a .part file, which nndownload will resume or "
+                    "overwrite on the next run."
+                )
+                sys.exit(0)
+            except (Exception, SystemExit) as e:
+                # nndownload.execute() parses its arguments with argparse,
+                # which raises SystemExit on invalid arguments.
+                logger.exception("Something wrong happened in nndownload.execute()")
+                if attempt < self._max_retries:
+                    logger.warning(
+                        f"Retry downloading {url} in {self._retry_interval} sec "
+                        f"({attempt + 1}/{self._max_retries})."
+                    )
+                    time.sleep(self._retry_interval)
+                    continue
+                if not skip_on_fail:
+                    raise RuntimeError(str(e))
                 logger.warning(f"skip_on_fail flag enabled. Skip for {save_path}")
+                return save_path
         logger.info(f"Successfully download to {save_path}.")
         return save_path
 

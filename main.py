@@ -1,15 +1,17 @@
 import argparse
 import logging
+import sys
 from pathlib import Path
 
 import toml
 from nico_download.configs import Config
 from nico_download.downloader import DownloadManager, fetch_video_id
 from nico_download.exceptions import FileExistsError
-from nico_download.logger import add_file_handler, set_verbosity
+from nico_download.logger import add_file_handler, get_logger, set_verbosity
 from omegaconf import OmegaConf
 
 config_schema = OmegaConf.structured(Config)
+logger = get_logger("nico_download.main")
 
 
 def main() -> None:
@@ -56,6 +58,7 @@ def main() -> None:
         session_cookie=config.session_cookie,
     )
     global_limit = config.limit
+    failed: list[str] = []
     for query in config.queries:
         results = fetch_video_id(
             query=query.query,
@@ -82,6 +85,14 @@ def main() -> None:
             except OSError as e:
                 print(f"OSError: {str(e)}")
                 print(f"skip {movie_id}, {title}")
+            except RuntimeError:
+                # One failed video must not abort the remaining queries.
+                # The failure is already logged in DownloadManager.
+                failed.append(f"{movie_id} ({title})")
+
+    if failed:
+        logger.error(f"Failed to download {len(failed)} video(s): {failed}")
+        sys.exit(1)
 
 
 if __name__ == "__main__":
