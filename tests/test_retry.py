@@ -22,7 +22,7 @@ def test_retry_then_success(monkeypatch, tmp_path):
 
     monkeypatch.setattr(downloader.nndownload, "execute", fake_execute)
     save_path = tmp_path / "out.mp4"
-    assert _manager().download_video("so1", save_path) == save_path
+    assert _manager().download_video("dummy_video_id", save_path) == save_path
     assert len(calls) == 2
     assert save_path.exists()
 
@@ -37,7 +37,7 @@ def test_give_up_after_retries(monkeypatch, tmp_path):
     monkeypatch.setattr(downloader.nndownload, "execute", fake_execute)
     save_path = tmp_path / "out.mp4"
     with pytest.raises(RuntimeError):
-        _manager(max_retries=2).download_video("so1", save_path)
+        _manager(max_retries=2).download_video("dummy_video_id", save_path)
     assert len(calls) == 3
 
 
@@ -51,7 +51,7 @@ def test_system_exit_becomes_runtime_error(monkeypatch, tmp_path):
     monkeypatch.setattr(downloader.nndownload, "execute", fake_execute)
     save_path = tmp_path / "out.mp4"
     with pytest.raises(RuntimeError):
-        _manager(max_retries=2).download_video("so1", save_path)
+        _manager(max_retries=2).download_video("dummy_video_id", save_path)
     assert len(calls) == 3
 
 
@@ -66,7 +66,9 @@ def test_keyboard_interrupt_exits_without_retry(monkeypatch, tmp_path):
     save_path = tmp_path / "out.mp4"
     save_path.write_bytes(b"completed")
     with pytest.raises(SystemExit) as excinfo:
-        _manager(max_retries=2).download_video("so1", save_path, overwrite=True)
+        _manager(max_retries=2).download_video(
+            "dummy_video_id", save_path, overwrite=True
+        )
     assert excinfo.value.code == 0
     assert len(calls) == 1
     assert save_path.read_bytes() == b"completed"
@@ -78,6 +80,8 @@ def test_skip_on_fail(monkeypatch, tmp_path):
 
     monkeypatch.setattr(downloader.nndownload, "execute", fake_execute)
     save_path = tmp_path / "out.mp4"
-    ret = _manager(max_retries=0).download_video("so1", save_path, skip_on_fail=True)
+    ret = _manager(max_retries=0).download_video(
+        "dummy_video_id", save_path, skip_on_fail=True
+    )
     assert ret == save_path
     assert not save_path.exists()
