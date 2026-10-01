@@ -129,8 +129,11 @@ class DownloadManager(object):
                 break
             except KeyboardInterrupt:
                 logger.critical("KeyboardInterrupt stopped!")
-                save_path.unlink(missing_ok=True)
-                logger.critical(f"Intermediate file {save_path} is removed.")
+                logger.critical(
+                    f"Download to {save_path} was interrupted. Partial data may "
+                    "remain as a .part file, which nndownload will resume or "
+                    "overwrite on the next run."
+                )
                 sys.exit(0)
             except (Exception, SystemExit) as e:
                 # nndownload.execute() parses its arguments with argparse,

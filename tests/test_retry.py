@@ -55,6 +55,23 @@ def test_system_exit_becomes_runtime_error(monkeypatch, tmp_path):
     assert len(calls) == 3
 
 
+def test_keyboard_interrupt_exits_without_retry(monkeypatch, tmp_path):
+    calls = []
+
+    def fake_execute(*args):
+        calls.append(args)
+        raise KeyboardInterrupt
+
+    monkeypatch.setattr(downloader.nndownload, "execute", fake_execute)
+    save_path = tmp_path / "out.mp4"
+    save_path.write_bytes(b"completed")
+    with pytest.raises(SystemExit) as excinfo:
+        _manager(max_retries=2).download_video("so1", save_path, overwrite=True)
+    assert excinfo.value.code == 0
+    assert len(calls) == 1
+    assert save_path.read_bytes() == b"completed"
+
+
 def test_skip_on_fail(monkeypatch, tmp_path):
     def fake_execute(*args):
         raise KeyError("video")
