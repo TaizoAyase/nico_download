@@ -70,7 +70,7 @@ def main() -> None:
                 offset=query.offset,
             )
         except Exception as e:
-            # Log it and go on to the next query. A network error (e.g. the NAS
+            # Log it and go on to the next query. A network error (e.g. the host
             # is offline) is clear from its message, so skip its long traceback.
             logger.error(
                 f"Failed to search videos for query '{query.query}': {e}",
