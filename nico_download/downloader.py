@@ -109,7 +109,8 @@ class DownloadManager(object):
         if save_path.exists():
             if not overwrite:
                 mes = f"{save_path} already exists."
-                logger.error(mes)
+                # Expected for every already-downloaded video, so not an error.
+                logger.info(mes)
                 raise FileExistsError(mes)
             else:
                 logger.warning(
@@ -171,7 +172,8 @@ def fetch_video_id(
         "_offset": str(offset),
     }
     logger.debug(f"{query_dict=}")
-    res = requests.get(ENDPOINT_URL, query_dict)
+    res = requests.get(ENDPOINT_URL, query_dict, timeout=30)
+    res.raise_for_status()
 
     response_dict = json.loads(res.text)
     logger.debug(f"{response_dict=}")
