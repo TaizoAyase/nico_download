@@ -10,7 +10,6 @@ from nico_download.exceptions import FileExistsError
 from nico_download.logger import get_logger
 from nndownload.nndownload import (
     BACKOFF_FACTOR,
-    LOGIN_URL,
     RETRY_ATTEMPTS,
     AuthenticationException,
 )
@@ -19,6 +18,12 @@ from urllib3.util import Retry
 
 ENDPOINT_URL = (
     "https://snapshot.search.nicovideo.jp/api/v2/snapshot/video/contents/search"
+)
+# nndownload dropped password login (and LOGIN_URL) in 1.21.1; keep a copy
+# for the uid/passwd fallback in _login().
+LOGIN_URL = (
+    "https://account.nicovideo.jp/login/redirector?show_button_twitter=1"
+    "&site=niconico&show_button_facebook=1&sec=header_pc&next_url=/"
 )
 
 logger = get_logger(__name__)
@@ -104,7 +109,8 @@ class DownloadManager(object):
         if save_path.exists():
             if not overwrite:
                 mes = f"{save_path} already exists."
-                logger.error(mes)
+                # Expected for every already-downloaded video, so not an error.
+                logger.info(mes)
                 raise FileExistsError(mes)
             else:
                 logger.warning(
@@ -166,7 +172,8 @@ def fetch_video_id(
         "_offset": str(offset),
     }
     logger.debug(f"{query_dict=}")
-    res = requests.get(ENDPOINT_URL, query_dict)
+    res = requests.get(ENDPOINT_URL, query_dict, timeout=30)
+    res.raise_for_status()
 
     response_dict = json.loads(res.text)
     logger.debug(f"{response_dict=}")

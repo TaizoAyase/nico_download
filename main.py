@@ -3,6 +3,7 @@ import logging
 import sys
 from pathlib import Path
 
+import requests
 import toml
 from nico_download.configs import Config
 from nico_download.downloader import DownloadManager, fetch_video_id
@@ -58,14 +59,25 @@ def main() -> None:
         session_cookie=config.session_cookie,
     )
     global_limit = config.limit
+    failed_queries: list[str] = []
     failed: list[str] = []
     for query in config.queries:
-        results = fetch_video_id(
-            query=query.query,
-            targets=query.target,
-            max_videos=query.limit or global_limit,
-            offset=query.offset,
-        )
+        try:
+            results = fetch_video_id(
+                query=query.query,
+                targets=query.target,
+                max_videos=query.limit or global_limit,
+                offset=query.offset,
+            )
+        except Exception as e:
+            # Log it and go on to the next query. A network error (e.g. the NAS
+            # is offline) is clear from its message, so skip its long traceback.
+            logger.error(
+                f"Failed to search videos for query '{query.query}': {e}",
+                exc_info=not isinstance(e, requests.RequestException),
+            )
+            failed_queries.append(query.query)
+            continue
         savedir = Path(config.saveroot)
         if len(query.subdir) > 0:
             savedir = savedir / query.subdir
@@ -80,20 +92,32 @@ def main() -> None:
                     args.dry_run,
                     config.skip_on_fail,
                 )
-            except FileExistsError as e:
-                print(e)
-            except OSError as e:
-                print(f"OSError: {str(e)}")
-                print(f"skip {movie_id}, {title}")
+            except FileExistsError:
+                # Already logged in DownloadManager.
+                pass
+            except OSError:
+                logger.exception(f"OSError on {save_path}, skip {movie_id}")
+                failed.append(f"{movie_id} ({title})")
             except RuntimeError:
                 # One failed video must not abort the remaining queries.
                 # The failure is already logged in DownloadManager.
                 failed.append(f"{movie_id} ({title})")
 
+    if failed_queries:
+        logger.error(
+            f"Failed to search {len(failed_queries)} query(ies): {failed_queries}"
+        )
     if failed:
         logger.error(f"Failed to download {len(failed)} video(s): {failed}")
+    if failed_queries or failed:
         sys.exit(1)
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception:
+        # An uncaught traceback only goes to stderr, which is not kept under
+        # cron, so write it to the log file as well.
+        logger.exception("Unexpected error")
+        sys.exit(1)

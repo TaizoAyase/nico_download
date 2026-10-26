@@ -1,12 +1,12 @@
 [project]
 name = "nico-download"
-version = "0.5.1"
+version = "0.5.2"
 description = ""
 authors = [{name = "TaizoAyase", email = "zxcvbnmkind@gmail.com"}]
 requires-python = ">=3.11"
 dependencies = [
     "requests>=2.26.0,<3.0.0",
-    "nndownload>=1.11,<2.0.0",
+    "nndownload>=1.21.2,<2.0.0",
     "toml>=0.10.2,<1.0.0",
     "colorlog<5.0.0",
     "omegaconf>=2.3.0,<3.0.0",
