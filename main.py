@@ -6,7 +6,7 @@ from pathlib import Path
 import requests
 import toml
 from nico_download.configs import Config
-from nico_download.downloader import DownloadManager, fetch_video_id
+from nico_download.downloader import DownloadManager, fetch_video_id, make_filename
 from nico_download.exceptions import FileExistsError
 from nico_download.logger import add_file_handler, get_logger, set_verbosity
 from omegaconf import OmegaConf
@@ -83,7 +83,7 @@ def main() -> None:
             savedir = savedir / query.subdir
 
         for movie_id, title in results:
-            save_path = savedir / f"{title}.mp4"
+            save_path = savedir / make_filename(title, movie_id)
             try:
                 manager.download_video(
                     movie_id,
