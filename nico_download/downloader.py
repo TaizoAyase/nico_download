@@ -25,8 +25,28 @@ LOGIN_URL = (
     "https://account.nicovideo.jp/login/redirector?show_button_twitter=1"
     "&site=niconico&show_button_facebook=1&sec=header_pc&next_url=/"
 )
+# Most file systems limit a file name to 255 bytes.
+MAX_FILENAME_BYTES = 255
+# nndownload writes to "<name>.part.mp4" while downloading "<name>.mp4".
+PART_SUFFIX = ".part"
 
 logger = get_logger(__name__)
+
+
+def make_filename(title: str, video_id: str, ext: str = ".mp4") -> str:
+    """Make a file name for a video that fits in MAX_FILENAME_BYTES.
+
+    The name must fit even with PART_SUFFIX inserted by nndownload. A longer
+    title is cut at a character boundary and the video ID is appended, so that
+    titles which differ only after the cut do not get the same name.
+    """
+    if len(f"{title}{PART_SUFFIX}{ext}".encode()) <= MAX_FILENAME_BYTES:
+        return f"{title}{ext}"
+    tail = f" ({video_id}){ext}"
+    max_bytes = MAX_FILENAME_BYTES - len(f"{PART_SUFFIX}{tail}".encode())
+    # Drop a multibyte character split by the cut.
+    head = title.encode()[:max_bytes].decode(errors="ignore")
+    return f"{head}{tail}"
 
 
 def _login(username: str, password: str) -> requests.Session:
